@@ -1,28 +1,29 @@
-package com.app.newzapp.news.ui
+package com.app.newzapp.presentation.ui.newsFeed
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.paging.compose.collectAsLazyPagingItems
-import com.app.network.NetworkConstants
-import com.app.network.NetworkLink
-import com.app.newzapp.news.NewsViewModel
+import com.app.network.domain.useCase.NewsFeedUseCase
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val viewModel: NewsViewModel by viewModels()
+
+    @Inject
+    lateinit var newsFeedUseCase: NewsFeedUseCase
+
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            NewsFeedScreen(viewModel) {}
+
+            NewsFeedScreen(viewModel, newsFeedUseCase, sharedPreferences){}
 //            val navController = rememberNavController()
 //            NavHost(navController = navController, startDestination = "news_feed") {
 //

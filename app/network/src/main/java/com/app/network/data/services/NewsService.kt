@@ -1,8 +1,8 @@
-package com.app.network.news
+package com.app.network.data.services
 
 import com.app.network.NetworkConstants
 import com.app.network.NetworkConstants.BASE_URL
-import com.app.network.news.models.NewsArticle
+import com.app.network.data.models.NewsArticle
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -13,7 +13,7 @@ import retrofit2.http.Query
 import retrofit2.Response as Retrofit2Response
 
 // This will contain all the apis referencing to the fetch of all news
-internal interface NewsService {
+ interface NewsService {
     @GET("top-headlines")
     suspend fun getNewsData(
         @Query("country") country: String,

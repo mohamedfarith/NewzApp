@@ -1,14 +1,17 @@
-package com.app.network.news
+package com.app.network.data.datasourcesImpl
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.app.network.NetworkConstants
-import com.app.network.news.models.Article
-import com.app.network.news.models.NewsArticle
+import com.app.network.data.models.Article
+import com.app.network.data.models.NewsArticle
+import com.app.network.data.services.NewsService
+import com.app.network.domain.datasources.NewsNetworkDataSource
 import com.google.gson.Gson
+import javax.inject.Inject
 
-/* This class talks to the server and gets the source of truth data */
-class NewsNetworkDataSource internal constructor(private val newsService: NewsService) : PagingSource<Int, Article>() {
+class NewsNetworkDataSourceImpl @Inject constructor( var service: NewsService) : NewsNetworkDataSource,
+    PagingSource<Int, Article>() {
     private var selectedCountry: String = "in"
     private var pageSize: Int = NetworkConstants.DEFAULT_PAGE_LIMIT
     private var pageNumber: Int = 1
@@ -46,11 +49,15 @@ class NewsNetworkDataSource internal constructor(private val newsService: NewsSe
 //        } catch (e: Exception) {
 //            LoadResult.Error(e)
 //        }
-        val articles = getLocalData()?.articles?.mapNotNull { it } ?: arrayListOf()
-        return LoadResult.Page(data = articles, prevKey = if (page == 1) null else page.minus(1), nextKey = page.plus(1))
+        val articles = getNewsData()?.articles?.mapNotNull { it } ?: arrayListOf()
+        return LoadResult.Page(
+            data = articles,
+            prevKey = if (page == 1) null else page.minus(1),
+            nextKey = page.plus(1)
+        )
     }
 
-    private fun getLocalData(): NewsArticle? {
+    override suspend fun getNewsData(): NewsArticle? {
         val data = "{\n" +
                 "  \"articles\": [\n" +
                 "    {\n" +
@@ -229,5 +236,4 @@ class NewsNetworkDataSource internal constructor(private val newsService: NewsSe
                 "}"
         return Gson().fromJson(data, NewsArticle::class.java)
     }
-
 }
