@@ -2,9 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.app.newzapp">
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
+        android:name=".NewzApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -14,8 +17,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NewzApp"
         tools:targetApi="31">
+        <activity android:name=".presentation.ui.newsFeed.MainActivity" />
         <activity
-            android:name=".news.ui.MainActivity"
+            android:name=".presentation.ui.newsFeed.SplashScreenActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
