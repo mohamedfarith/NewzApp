@@ -1,6 +1,7 @@
 package com.app.newzapp.presentation.ui.newsFeed
 
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -11,34 +12,16 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
     private val viewModel: NewsViewModel by viewModels()
-
-    @Inject
-    lateinit var newsFeedUseCase: NewsFeedUseCase
-
-    @Inject
-    lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.statusBarColor = Color.WHITE
         setContent {
-
-            NewsFeedScreen(viewModel, newsFeedUseCase, sharedPreferences){}
-//            val navController = rememberNavController()
-//            NavHost(navController = navController, startDestination = "news_feed") {
-//
-//                composable("news_feed") {
-//
-//                    NewsFeedScreen(viewModel) {
-//
-//                    }
-//
-//                }
-//                composable("news_description") {
-//
-//                }
-//
-//            }
+            NewsFeedScreen(viewModel) {
+                // on article click handle the event and move to next screen
+            }
         }
     }
 }

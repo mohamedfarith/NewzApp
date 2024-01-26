@@ -1,63 +1,17 @@
 package com.app.network.data.datasourcesImpl
 
-import androidx.paging.PagingSource
-import androidx.paging.PagingState
-import com.app.network.NetworkConstants
-import com.app.network.data.models.Article
+import com.app.network.NetworkState
 import com.app.network.data.models.NewsArticle
 import com.app.network.data.services.NewsService
 import com.app.network.domain.datasources.NewsNetworkDataSource
 import com.google.gson.Gson
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
-class NewsNetworkDataSourceImpl @Inject constructor( var service: NewsService) : NewsNetworkDataSource,
-    PagingSource<Int, Article>() {
-    private var selectedCountry: String = "in"
-    private var pageSize: Int = NetworkConstants.DEFAULT_PAGE_LIMIT
-    private var pageNumber: Int = 1
-    fun setApiCallData(country: String, pageSize: Int, pageNumber: Int) {
-        this.selectedCountry = country
-        this.pageNumber = pageNumber
-        this.pageSize = pageSize
-    }
+class NewsNetworkDataSourceImpl @Inject constructor(var service: NewsService) :
+    NewsNetworkDataSource {
 
-
-    override fun getRefreshKey(state: PagingState<Int, Article>): Int? {
-        return state.anchorPosition?.let { anchorPosition ->
-            state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
-                ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
-        }
-    }
-
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Article> {
-//        return try {
-        val page = params.key ?: 1
-//            val response = newsService.getNewsData(country = selectedCountry, pageSize, pageNumber)
-//            val articles = response.body()?.articles?.mapNotNull { it } ?: arrayListOf()
-//            if (response.isSuccessful.not()) {
-//                LoadResult.Error(Throwable(message = "Error"))
-//            } else if (articles.isEmpty()) {
-//                LoadResult.Error(Throwable(message = "Error"))
-//            } else {
-//                LoadResult.Page(
-//                    data = articles,
-//                    prevKey = if (page == 1) null else page.minus(1),
-//                    nextKey = page.plus(1),
-//                )
-//            }
-//
-//        } catch (e: Exception) {
-//            LoadResult.Error(e)
-//        }
-        val articles = getNewsData()?.articles?.mapNotNull { it } ?: arrayListOf()
-        return LoadResult.Page(
-            data = articles,
-            prevKey = if (page == 1) null else page.minus(1),
-            nextKey = page.plus(1)
-        )
-    }
-
-    override suspend fun getNewsData(): NewsArticle? {
+   suspend fun getTestingData(country: String, pageSize: Int, pageNumber: Int): NetworkState.Success {
         val data = "{\n" +
                 "  \"articles\": [\n" +
                 "    {\n" +
@@ -234,6 +188,21 @@ class NewsNetworkDataSourceImpl @Inject constructor( var service: NewsService) :
                 "  \"status\": \"ok\",\n" +
                 "  \"totalResults\": 38\n" +
                 "}"
-        return Gson().fromJson(data, NewsArticle::class.java)
+       delay(3000)
+        return NetworkState.Success(data  = Gson().fromJson(data, NewsArticle::class.java))
+    }
+
+
+    override suspend fun getNewsData(
+        country: String,
+        pageSize: Int,
+        pageNumber: Int
+    ): NetworkState {
+        val response = service.getNewsData(country, pageSize, pageNumber)
+        if (response.code() == 200) {
+            return NetworkState.Success(response.body() as NewsArticle)
+        } else {
+            return NetworkState.Failure(message = response.errorBody().toString())
+        }
     }
 }

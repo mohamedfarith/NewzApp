@@ -1,7 +1,7 @@
 package com.app.network.domain.datasources
 
-import com.app.network.data.models.NewsArticle
+import com.app.network.NetworkState
 
 interface NewsNetworkDataSource {
-    suspend fun getNewsData(): NewsArticle?
+    suspend fun getNewsData(country: String, pageSize: Int, pageNumber: Int): NetworkState
 }

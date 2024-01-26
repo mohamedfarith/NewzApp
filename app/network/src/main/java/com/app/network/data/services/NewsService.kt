@@ -13,13 +13,13 @@ import retrofit2.http.Query
 import retrofit2.Response as Retrofit2Response
 
 // This will contain all the apis referencing to the fetch of all news
- interface NewsService {
+interface NewsService {
     @GET("top-headlines")
     suspend fun getNewsData(
         @Query("country") country: String,
         @Query("pageSize") pageSize: Int,
         @Query("page") pageNumber: Int
-    ): Retrofit2Response<NewsArticle>
+    ): retrofit2.Response<NewsArticle>
 
     companion object {
         fun create(): NewsService {
