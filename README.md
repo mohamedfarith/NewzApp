@@ -15,4 +15,5 @@ NewsApp is a simple and intuitive news application that allows users to stay inf
 
 - Built entirely in **Jetpack Compose** with **Kotlin**
 - Followed Best practices with **MVVM + Clean Architecture**
+- Dependency Injection with **Dagger-Hilt**
   
