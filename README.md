@@ -9,3 +9,10 @@ NewsApp is a simple and intuitive news application that allows users to stay inf
 - **Search:** Search for specific news topics or keywords.
 - **Save Favorites:** Bookmark your favourite articles for easy access later.
 - **Responsive Design:** Enjoy a seamless experience on both desktop and mobile devices.
+
+
+## Tech Stack
+
+- Built entirely in **Jetpack Compose** with **Kotlin**
+- Followed Best practices with **MVVM + Clean Architecture**
+  
