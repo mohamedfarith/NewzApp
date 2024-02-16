@@ -20,13 +20,11 @@ import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LargeTopAppBar
-import androidx.compose.material3.SmallTopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +43,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,10 +59,15 @@ import com.app.network.data.models.NewsArticle
 @Composable
 fun NewsFeedScreen(
     viewModel: NewsViewModel,
-    onCardClick: (Article) -> Unit
+    category: String?,
+    onCardClick: (Article) -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior
 ) {
     val loadedItem = remember {
         mutableStateOf<NewsArticle?>(null)
+    }
+    val mCategory = remember {
+        mutableStateOf(category)
     }
     val lifecycleOwner = LocalLifecycleOwner.current.lifecycle
     val latestEvent = remember {
@@ -74,12 +78,13 @@ fun NewsFeedScreen(
         lifecycleOwner.addObserver(lifecycleObserver)
         onDispose { lifecycleOwner.removeObserver(lifecycleObserver) }
     }
-    LaunchedEffect(key1 = Unit) {
-        if (latestEvent.value == Lifecycle.Event.ON_RESUME) {
+    LaunchedEffect(key1 = mCategory.value) {
+        if (latestEvent.value == Lifecycle.Event.ON_START || latestEvent.value == Lifecycle.Event.ON_RESUME) {
             viewModel.getLatestNewsData(
                 country = "in",
                 pageSize = NetworkConstants.DEFAULT_PAGE_LIMIT,
-                pageNumber = 1
+                pageNumber = 1,
+                category = category?.replace("/", "")?.lowercase().toString()
             )
         }
 
@@ -88,48 +93,22 @@ fun NewsFeedScreen(
     when (val item = viewModel.newState.collectAsState().value) {
         is NetworkState.Success -> run {
             loadedItem.value = item.data as? NewsArticle
-            val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-
-            Scaffold(
-                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                topBar = {
-                    LargeTopAppBar(
-                        title = {
-                            Text(
-                                modifier = Modifier.padding(top = 20.dp),
-                                text = "Discover",
-                                style = TextStyle(
-                                    color = Color.Black,
-                                    fontSize = 30.sp,
-                                    fontFamily = FontFamily.Monospace,
-                                    fontWeight = FontWeight.Bold
-                                )
+            loadedItem.value?.let { newsArticle ->
+                LazyColumn(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)) {
+                    itemsIndexed(
+                        newsArticle.articles?.toList() ?: emptyList(),
+                        key = { _, item -> item?.title.hashCode() }) { _, article ->
+                        article?.let {
+                            ArticleCard(article = article, onCardClick = {})
+                            Divider(
+                                modifier = Modifier.alpha(0.2f),
+                                thickness = 1.dp,
+                                color = Color.Gray
                             )
-
-                        },
-                        navigationIcon = {},
-                        actions = {},
-                        scrollBehavior = scrollBehavior,
-                        colors = TopAppBarDefaults.largeTopAppBarColors(containerColor = Color.White)
-                    )
-                },
-                content = { _ ->
-                    loadedItem.value?.let { newsArticle ->
-                        LazyColumn() {
-                            itemsIndexed(
-                                newsArticle.articles?.toList() ?: emptyList()
-                            ) { _, article ->
-                                article?.let {
-                                    ArticleCard(article = article, onCardClick = {})
-                                    Divider(modifier = Modifier.alpha(0.2f), thickness = 1.dp, color = Color.Gray)
-                                }
-                            }
                         }
                     }
-
-
                 }
-            )
+            }
         }
 
         is NetworkState.Loading -> run {

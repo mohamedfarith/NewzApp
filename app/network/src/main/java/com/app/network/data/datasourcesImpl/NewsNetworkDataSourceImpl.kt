@@ -1,208 +1,41 @@
 package com.app.network.data.datasourcesImpl
 
+import com.app.network.DataWrapper
 import com.app.network.NetworkState
 import com.app.network.data.models.NewsArticle
 import com.app.network.data.services.NewsService
 import com.app.network.domain.datasources.NewsNetworkDataSource
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class NewsNetworkDataSourceImpl @Inject constructor(var service: NewsService) :
+class NewsNetworkDataSourceImpl @Inject constructor(private val service: NewsService) :
     NewsNetworkDataSource {
 
-   suspend fun getTestingData(country: String, pageSize: Int, pageNumber: Int): NetworkState.Success {
-        val data = "{\n" +
-                "  \"articles\": [\n" +
-                "    {\n" +
-                "      \"author\": \"Snehashish Roy\",\n" +
-                "      \"content\": \"Bahujan Samaj Party (BSP) MP Danish Ali on Friday alleged that the content of Lok Sabha's ethics panel report against TMC MP Mahua Moitra on the cash-for-query case had been written somewhere else, o… [+1704 chars]\",\n" +
-                "      \"description\": \"The report recommended expulsion of the TMC MP for accepting ‘illegal gratifications’ from industrialist in order to raise questions in the Lok Sabha. | Latest News India\",\n" +
-                "      \"publishedAt\": \"2023-11-11T01:07:00Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"name\": \"Hindustan Times\"\n" +
-                "      },\n" +
-                "      \"title\": \"Danish Ali says ethics panel's ‘script written somewhere else’; snubs BJP MP - Hindustan Times\",\n" +
-                "      \"url\": \"https://www.hindustantimes.com/india-news/bsps-danish-ali-says-ethics-panels-script-written-somewhere-else-snubs-bjp-mp-101699663074855.html\",\n" +
-                "      \"urlToImage\": \"https://www.hindustantimes.com/ht-img/img/2023/11/11/1600x900/PTI09-29-2023-000259A-0_1699664636152_1699664661402.jpg\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"author\": \"ESPNcricinfo staff\",\n" +
-                "      \"content\": \"Harmison: Even if some England careers finish, they have been absolutely outstanding\",\n" +
-                "      \"description\": \"South Africa had some nervy moments beating Afghanistan and also suffered an injury scare to their captain\",\n" +
-                "      \"publishedAt\": \"2023-11-11T00:01:13Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"id\": \"espn-cric-info\",\n" +
-                "        \"name\": \"ESPN Cric Info\"\n" +
-                "      },\n" +
-                "      \"title\": \"ODI World Cup digest: Pakistan need a miracle; Australia seeking seven in a row - ESPNcricinfo\",\n" +
-                "      \"url\": \"https://www.espncricinfo.com/story/odi-world-cup-digest-pakistan-need-a-miracle-australia-seeking-seven-wins-in-a-row-1408250\",\n" +
-                "      \"urlToImage\": \"https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/371000/371037.6.jpg\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"author\": \"The Hindu\",\n" +
-                "      \"publishedAt\": \"2023-11-10T22:44:00Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"id\": \"the-hindu\",\n" +
-                "        \"name\": \"The Hindu\"\n" +
-                "      },\n" +
-                "      \"title\": \"U.S. approves first vaccine against chikungunya virus - The Hindu\",\n" +
-                "      \"url\": \"https://www.thehindu.com/news/international/us-approves-first-vaccine-against-chikungunya-virus/article67521533.ece\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"content\": \"Earlier, Israel had claimed that more than 1,400 Israeli were killed in Hamas attacks on October 7.\\r\\nJerusalem: Israel on Friday revised down the death toll of last month's Hamas attacks to about 1,2… [+6639 chars]\",\n" +
-                "      \"description\": \"Israel on Friday revised down the death toll of last month's Hamas attacks to about 1,200 as it continued its assault on Gaza, forcing thousands of Palestinians to flee south to escape the destruction in the city.\",\n" +
-                "      \"publishedAt\": \"2023-11-10T21:55:48Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"name\": \"NDTV News\"\n" +
-                "      },\n" +
-                "      \"title\": \"Israel Revises Down October 7 Hamas Attack Death Count To 1,200 - NDTV\",\n" +
-                "      \"url\": \"https://www.ndtv.com/world-news/israel-revises-down-death-count-from-october-7-attack-to-around-1-200-4565870\",\n" +
-                "      \"urlToImage\": \"https://c.ndtvimg.com/2023-11/inq156p_gaza-reuters_625x300_08_November_23.jpeg\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"author\": \"Gina Mauro\",\n" +
-                "      \"content\": \"With a reflection on the past paradigm-changing studies done in advanced prostate cancer, Howard I. Scher, MD, emphasized that the field needs to shift focus to earlier-stage settings, spotlighting i… [+9073 chars]\",\n" +
-                "      \"description\": \"Howard I. Scher, MD, sheds light on various research programs he has led or has been heavily involved with that have helped change the course of prostate cancer treatment over the years.\",\n" +
-                "      \"publishedAt\": \"2023-11-10T21:28:17Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"name\": \"OncLive\"\n" +
-                "      },\n" +
-                "      \"title\": \"Reflecting on Advances Made in High-risk, Low-Grade Prostate Cancer Management - OncLive\",\n" +
-                "      \"url\": \"https://www.onclive.com/view/reflecting-on-advances-made-in-high-risk-low-grade-prostate-cancer-management\",\n" +
-                "      \"urlToImage\": \"https://cdn.sanity.io/images/0vv8moc6/onclive/67abe93f06faf7e8b08c58c7d8b1492f316abb0b-200x200.png?fit=crop&auto=format\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"author\": \"Sportstar\",\n" +
-                "      \"publishedAt\": \"2023-11-10T21:21:02Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"id\": \"the-hindu\",\n" +
-                "        \"name\": \"The Hindu\"\n" +
-                "      },\n" +
-                "      \"title\": \"Sri Lanka Cricket suspended by ICC over breach of regulations - Sportstar\",\n" +
-                "      \"url\": \"https://sportstar.thehindu.com/cricket/sri-lanka-cricket-suspended-by-icc-breach-of-regulations-government-interference-cricket-world-cup-news/article67522229.ece\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"description\": \"SpaceX launched its Dragon spacecraft to the International Space Station on Thursday Nov. 9, in its 29th mission to resupply the ISS. It's due to automatical...\",\n" +
-                "      \"publishedAt\": \"2023-11-10T19:30:06Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"name\": \"YouTube\"\n" +
-                "      },\n" +
-                "      \"title\": \"SpaceX sends 29th spacecraft to International Space Station - CGTN America\",\n" +
-                "      \"url\": \"https://www.youtube.com/watch?v=twGIuHvV3cs\",\n" +
-                "      \"urlToImage\": \"https://i.ytimg.com/vi/twGIuHvV3cs/maxresdefault.jpg\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"author\": \"CricTracker Staff\",\n" +
-                "      \"content\": \"Australia (AUS) will take on Bangladesh (BAN) in the 43rd game of the ODI World Cup 2023 on Saturday (November 11) at the Maharashtra International Cricket Stadium in Pune. Australia have won six out… [+1514 chars]\",\n" +
-                "      \"description\": \"AUS vs BAN Dream11 Team Today - Check out Australia vs. Bangladesh Dream11 prediction, playing 11, World Cup fantasy league, &amp; more updates for the 37th match of 2023 ICC Cricket World Cup only on CricTracker.Com\",\n" +
-                "      \"publishedAt\": \"2023-11-10T19:30:00Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"name\": \"Crictracker.com\"\n" +
-                "      },\n" +
-                "      \"title\": \"AUS vs BAN Dream11 Prediction, ODI World Cup 2023, Match 43: Australia vs Bangladesh playing XI, fantasy team today's, squads, and Pitch Report - CricTracker\",\n" +
-                "      \"url\": \"https://www.crictracker.com/fantasy-cricket-tips/dream11-aus-vs-ban-dream11-prediction-world-cup-fantasy-team-todays-playing-xi-squads-for-match-43-034/\",\n" +
-                "      \"urlToImage\": \"https://media.crictracker.com/media/attachments/1699368519114_Australia.jpeg\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"author\": \"Sachin Parashar\",\n" +
-                "      \"description\": \"India News: India and the US held talks in their 5th 2+2 ministerial to strengthen their partnership in defense, security, trade, and technology. They reaffirmed\",\n" +
-                "      \"publishedAt\": \"2023-11-10T18:51:00Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"id\": \"the-times-of-india\",\n" +
-                "        \"name\": \"The Times of India\"\n" +
-                "      },\n" +
-                "      \"title\": \"India, US back Israel on terror, diss 'China’s aggression'; in a first, no mention of Pakistan in 2+2 joi - IndiaTimes\",\n" +
-                "      \"url\": \"https://timesofindia.indiatimes.com/india/india-us-back-israel-on-terror-diss-chinas-aggression-in-a-first-no-mention-of-pakistan-in-22-joint-statement/articleshow/105133192.cms\",\n" +
-                "      \"urlToImage\": \"https://static.toiimg.com/thumb/msid-105133194,width-1070,height-580,imgsize-53756,resizemode-75,overlay-toi_sw,pt-32,y_pad-40/photo.jpg\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"author\": \"DC Correspondent\",\n" +
-                "      \"content\": \"Police advised the general public to avoid roads from Panjagutta to Secunderabad via Begumpet as congestion is expected on this road and also in the roads surrounding Parade Grounds. (Image: DC)\",\n" +
-                "      \"description\": \"Traffic Advisory Issued for Prime Minister Modi's Hyderabad Visit\",\n" +
-                "      \"publishedAt\": \"2023-11-10T18:46:09Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"name\": \"Deccan Chronicle\"\n" +
-                "      },\n" +
-                "      \"title\": \"Traffic Advisory Issued for Prime Minister Modi's Hyderabad Visit - Deccan Chronicle\",\n" +
-                "      \"url\": \"https://www.deccanchronicle.com/nation/current-affairs/101123/traffic-advisory-issued-for-prime-minister-modis-hyderabad-visit.html\",\n" +
-                "      \"urlToImage\": \"https://s3.ap-southeast-1.amazonaws.com/images.deccanchronicle.com/dc-Cover-6qq7pvagdi5t9jqjok05gmle64-20231110182903.Medi.jpeg\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"author\": \"Shivangani Singh\",\n" +
-                "      \"content\": \"The next morning, housemates wake up to the Bigg Boss anthem. Vicky makes fun of how Sana removed Navid from the race but he is still friends with Sana and later they get into a fight. On the other s… [+1177 chars]\",\n" +
-                "      \"description\": \"Bigg Boss 17, Day 27 episode today, on Friday, 10 November 2023, was fun-filled and dramatic. Know what all happened inside the Bigg Boss House today and stay informed.\",\n" +
-                "      \"publishedAt\": \"2023-11-10T18:33:36Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"name\": \"The Quint\"\n" +
-                "      },\n" +
-                "      \"title\": \"Bigg Boss 17 Episode 27, Written Episode: Samarth & Sunny's Ugly Face Off - The Quint\",\n" +
-                "      \"url\": \"https://www.thequint.com/entertainment/bigg-boss-17-episode-27-written-episode-samarth-sunnys-ugly-face-off\",\n" +
-                "      \"urlToImage\": \"https://images.thequint.com/thequint%2F2023-10%2Fc2242a2d-e5c8-481e-b4a7-b32750a9f088%2FBigg_Boss_17.jpg\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"author\": \"TIMESOFINDIA.COM\",\n" +
-                "      \"content\": \"Who was Sam Manekshaw, the Indian Army Officer Vicky Kaushal is playing in Sam Bahadur?\",\n" +
-                "      \"description\": \"India News: Indian-American singer Falu and Prime Minister Narendra Modi's collaboration on a song promoting the benefits of millets has been nominated for a Gram\",\n" +
-                "      \"publishedAt\": \"2023-11-10T18:21:00Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"id\": \"the-times-of-india\",\n" +
-                "        \"name\": \"The Times of India\"\n" +
-                "      },\n" +
-                "      \"title\": \"Song on millets featuring PM Modi nominated for grammy - IndiaTimes\",\n" +
-                "      \"url\": \"https://timesofindia.indiatimes.com/india/song-on-millets-featuring-pm-modi-nominated-for-grammy/articleshow/105132973.cms\",\n" +
-                "      \"urlToImage\": \"https://static.toiimg.com/thumb/msid-105133062,width-1070,height-580,imgsize-38468,resizemode-75,overlay-toi_sw,pt-32,y_pad-40/photo.jpg\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"author\": \"The Quint\",\n" +
-                "      \"content\": \"Afghanistan became the fifth team to be eliminated from the semi-final sprint of the 2023 ICC World Cup, following their five-wicket defeat to South Africa today (10 November). \\r\\nEarlier, the quartet… [+192 chars]\",\n" +
-                "      \"description\": \"ICC World Cup 2023: Semi-Final Qualification Scenarios – With Afghanistan being officially eliminated, we are now left with two contenders for one available slot, in New Zealand and Pakistan. Here's what each team needs.\",\n" +
-                "      \"publishedAt\": \"2023-11-10T17:05:06Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"name\": \"The Quint\"\n" +
-                "      },\n" +
-                "      \"title\": \"ICC World Cup 2023: Semi-Final Qualification Scenarios – What Each Team Needs - The Quint\",\n" +
-                "      \"url\": \"https://www.thequint.com/sports/world-cup/icc-world-cup-2023-semi-final-qualification-scenarios-what-pakistan-new-zealand-need\",\n" +
-                "      \"urlToImage\": \"https://images.thequint.com/thequint%2F2023-11%2F63f5ee9e-5797-4e64-b32d-295a84472a02%2FQualification_Scenarios.jpg\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"author\": \"The Hindu\",\n" +
-                "      \"publishedAt\": \"2023-11-10T17:05:00Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"id\": \"the-hindu\",\n" +
-                "        \"name\": \"The Hindu\"\n" +
-                "      },\n" +
-                "      \"title\": \"Canada police probe video warning not to fly Air India - The Hindu\",\n" +
-                "      \"url\": \"https://www.thehindu.com/news/international/canada-police-probe-video-warning-not-to-fly-air-india/article67521494.ece\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"author\": \"The Financial Express\",\n" +
-                "      \"publishedAt\": \"2023-11-10T15:25:12Z\",\n" +
-                "      \"source\": {\n" +
-                "        \"name\": \"Financial Express\"\n" +
-                "      },\n" +
-                "      \"title\": \"Chandrayaan-4 mission: How NASA and ESA will contribute to ISRO’S lunar project – Key details - The Financial Express\",\n" +
-                "      \"url\": \"https://www.financialexpress.com/life/science-chandrayaan-4-mission-how-nasa-and-esa-will-contribute-to-isros-lunar-project-key-details-bkg-3304480/\"\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"status\": \"ok\",\n" +
-                "  \"totalResults\": 38\n" +
-                "}"
-       delay(3000)
-        return NetworkState.Success(data  = Gson().fromJson(data, NewsArticle::class.java))
+   override suspend fun getTestingData(
+        country: String,
+        pageSize: Int,
+        pageNumber: Int,
+        category: String
+    ): Flow<NetworkState<NewsArticle>> {
+        val data =
+            "{\"status\":\"ok\",\"totalResults\":70,\"articles\":[{\"source\":{\"id\":\"the-times-of-india\",\"name\":\"The Times of India\"},\"author\":\"Akash Podishetti\",\"title\":\"Coal India Q3 Results: Profit rises 17% YoY to Rs 9069 crore; dividend declared at Rs 5.25/share - The Economic Times\",\"description\":\"Revenue from operations rose 3% year-on-year to Rs 36,154 crore in the third quarter, compared with Rs 35,169 crore in the same period of last year. The profit before tax during the third quarter under review surged to an all-time high to Rs 12,375 crore, pos…\",\"url\":\"https://economictimes.indiatimes.com/markets/stocks/earnings/coal-india-q3-results-profit-rises-17-yoy-to-rs-9069-crore-dividend-declared-at-rs-5-25/share/articleshow/107633874.cms\",\"urlToImage\":\"https://img.etimg.com/thumb/msid-107633853,width-1200,height-630,imgsize-32410,overlay-etmarkets/photo.jpg\",\"publishedAt\":\"2024-02-12T13:36:23Z\",\"content\":\"Coal India on Monday reported 17% growth in its consolidated net profit to Rs 9,069 crore for the quarter ended December 2023. The same stood at Rs 7,755 crore a year ago.Revenue from operations rose… [+1760 chars]\"},{\"source\":{\"id\":null,\"name\":\"Hindustan Times\"},\"author\":\"Trisha Sengupta\",\"title\":\"Man finds worms inside Kellogg's Chocos, shares video. How company replied - Hindustan Times\",\"description\":\"A video of a man finding worms inside Kellogg's Chocos pieces has left people worried. He broke the pieces after his sister said that the cereal tasted funny. | Trending\",\"url\":\"https://www.hindustantimes.com/trending/man-finds-worms-inside-kelloggs-chocos-shares-video-how-company-replied-101707741217632.html\",\"urlToImage\":\"https://www.hindustantimes.com/ht-img/img/2024/02/12/1600x900/Insta_Viral_Video_Worm_Kelloggs_Chocos_Man_1707741244591_1707741251656.png\",\"publishedAt\":\"2024-02-12T12:44:57Z\",\"content\":\"A man took to Instagram to share a video that shows him breaking pieces of Kellogg's Chocos and finding worms inside them. In the video, he goes on to crush the pieces to show tiny white-coloured bug… [+1994 chars]\"},{\"source\":{\"id\":null,\"name\":\"Moneycontrol\"},\"author\":\"Siddharth Upasani\",\"title\":\"India's January CPI inflation eases to 5.10%, core inflation drops to 3.6% - Moneycontrol\",\"description\":\"Headline retail inflation has now spent 52 consecutive months above the Reserve Bank of India's medium-term target of 4 percent.\",\"url\":\"https://www.moneycontrol.com/news/business/economy/indias-january-cpi-inflation-eases-to-5-10-12248181.html\",\"urlToImage\":\"https://images.moneycontrol.com/static-mcnews/2017/03/fmcg1_720-770x433.jpg\",\"publishedAt\":\"2024-02-12T12:09:04Z\",\"content\":\"India's headline retail inflation rate decelerated to a three-month low of 5.10 percent in January due to easing food prices, according to data released by the Ministry of Statistics and Programme Im… [+3663 chars]\"},{\"source\":{\"id\":null,\"name\":\"Hindustan Times\"},\"author\":\"HT News Desk\",\"title\":\"Will RBI review its action against Paytm Payments Bank? Shaktikanta Das says… - Hindustan Times\",\"description\":\"On January 31, the RBI had stopped Paytm Payments Bank from accepting all deposits from February 29.\",\"url\":\"https://www.hindustantimes.com/business/paytm-payments-bank-crisis-vijay-shekhar-sharma-shaktikanta-das-101707737450086.html\",\"urlToImage\":\"https://www.hindustantimes.com/ht-img/img/2024/02/12/1600x900/shaktikanta_das_1707737475498_1707737475760.jpg\",\"publishedAt\":\"2024-02-12T11:45:13Z\",\"content\":\"Reserve Bank of India governor Shaktikanta Das on Monday made it clear that the central bank will not review its action against Paytm Payments Bank, while adding that the action was taken after a com… [+2019 chars]\"},{\"source\":{\"id\":null,\"name\":\"Moneycontrol\"},\"author\":\"Sunil Shankar Matkar\",\"title\":\"Technical View: Nifty forms long bearish candle, major correction likely if index breaks 21,500 - Moneycontrol\",\"description\":\"The options data indicated that 21,500 is expected to be an immediate support for the Nifty 50, while on the higher side, 21,700-21,800 is likely to be resistance zone.\",\"url\":\"https://www.moneycontrol.com/news/business/markets/technical-view-nifty-forms-long-bearish-candle-major-correction-likely-if-index-breaks-21500-12250821.html\",\"urlToImage\":\"https://images.moneycontrol.com/static-mcnews/2024/01/Stock-Market-Selloff-770x433.jpg\",\"publishedAt\":\"2024-02-12T11:41:43Z\",\"content\":\"The Nifty 50 had a subdued start to the week, wiping out all its previous day's gains and is on the verge of upward sloping support trendline adjoining lows of October 2023 and January 2024. This was… [+3113 chars]\"},{\"source\":{\"id\":null,\"name\":\"News18\"},\"author\":\"Namit Singh Sengar, Akhil Gupta\",\"title\":\"Will Home Prices Be Affordable Again? Housing Market Predictions For 2024 - News18\",\"description\":\"Home buyers are looking for a living space that resonates with their core values and convictions.\",\"url\":\"https://www.news18.com/business/will-home-prices-be-affordable-again-housing-market-predictions-for-2024-8775997.html\",\"urlToImage\":\"https://images.news18.com/ibnlive/uploads/2024/02/real-estate-properties-2024-02-d8648b9171141fc427c7b02c203f5657-16x9.png?impolicy=website&width=1200&height=675\",\"publishedAt\":\"2024-02-12T11:37:25Z\",\"content\":\"The Indian real estate landscape has shown immense growth and resilience over the past few years. Homebuyers, sellers, and industry experts alike are keenly observing the potential shifts in the hous… [+8336 chars]\"},{\"source\":{\"id\":null,\"name\":\"Etnownews.com\"},\"author\":\"ET Now Digital\",\"title\":\"NHPC dividend 2024 record date, amount and payout date - check details - ET Now\",\"description\":\"NHPC Dividend 2024 Record Date: NHPC is a PSU stock. The company has announced a dividend payment of 14 per cent on each stock. NHPC Dividend History, NHPC Dividend Payment Date, NHPC Share Price History - check here\",\"url\":\"https://www.etnownews.com/markets/nhpc-dividend-2024-record-date-amount-and-payout-date-check-details-article-107628997\",\"urlToImage\":\"https://etstatic.tnn.in/thumb/msid-107628997,width-1280,height-720,resizemode-75/107628997.jpg\",\"publishedAt\":\"2024-02-12T10:56:32Z\",\"content\":\"NHPC dividend 2024 record date, amount and payout date - check details (Pic: iStock/ET NOW News)\"},{\"source\":{\"id\":null,\"name\":\"Livemint\"},\"author\":\"A Ksheerasagar\",\"title\":\"Multibagger railway stocks IRFC, RVNL and 3 others fall up to 13.5%. Here's why | Mint - Mint\",\"description\":\"Railway PSU stocks, including IRFC and Rail Vikas Nigam, experience a decline in share prices due to weak financial results reported for Q3 FY24. IRFC's net profit dropped by 1.78% and Rail Vikas Nigam's net profit decreased by 6%.\",\"url\":\"https://www.livemint.com/market/stock-market-news/multibagger-railway-stocks-irfc-rvnl-irctc-ircon-railtel-fall-up-to-11-5-heres-why-11707729288429.html\",\"urlToImage\":\"https://www.livemint.com/lm-img/img/2024/02/12/1600x900/railways-kwHH--621x414LiveMint_1707729301917_1707729302281.jpg\",\"publishedAt\":\"2024-02-12T10:40:28Z\",\"content\":\"Railway PSU stocks, which have gained status as high-wealth creators in a very short period of time, fell sharply in today's session as a result of disappointing financial results reported for the De… [+3171 chars]\"},{\"source\":{\"id\":null,\"name\":\"Livemint\"},\"author\":\"Livemint\",\"title\":\"Elon Musk's plan for colonising Mars: ‘Mapping out a game plan to get…’ | Mint - Mint\",\"description\":\"SpaceX CEO Elon Musk reiterates his plan to colonise Mars and send 10 million people to the red planet.\",\"url\":\"https://www.livemint.com/news/trends/elon-musk-spacex-reveals-plan-for-colonizing-mars-plan-to-send-1-million-people-11707728769331.html\",\"urlToImage\":\"https://www.livemint.com/lm-img/img/2024/02/12/1600x900/Musk-Neuralink-Nevada-Corporation-0_1707732835403_1707732855298.jpg\",\"publishedAt\":\"2024-02-12T10:22:11Z\",\"content\":\"SpaceX CEO Elon Musk has once again shown his obsession with Mars, this time going ahead with his plan to colonise the red planet. It should be noted that Musk's obsession with Mars is nothing new, a… [+2124 chars]\"},{\"source\":{\"id\":null,\"name\":\"Team-BHP\"},\"author\":\"Rahul Nagaraj\",\"title\":\"BMW 7 Series Protection launched in India - Team-BHP\",\"description\":\"BMW has announced the launch of its new-gen armoured luxury sedan, the 7 Series Protection in the Indian market. The new-gen BMW 7 Series Protection made its debut at the IAA Mobility Show 2023 in Munich, Germany last year, alongside the electric i7 Protectio…\",\"url\":\"https://www.team-bhp.com/news/bmw-7-series-protection-launched-india\",\"urlToImage\":\"https://www.team-bhp.com/sites/default/files/styles/large/public/02 The new BMW 7 Series Protection.jpg\",\"publishedAt\":\"2024-02-12T09:49:37Z\",\"content\":\"BMW has announced the launch of its new-gen armoured luxury sedan, the 7 Series Protection in the Indian market. The new-gen BMW 7 Series Protection made its debut at the IAA Mobility Show 2023 in Mu… [+1490 chars]\"},{\"source\":{\"id\":null,\"name\":\"CNBCTV18\"},\"author\":\"Yoosef K\",\"title\":\"Sell-off in PSU space erodes ₹5 lakh crore in investor wealth in two sessions - CNBCTV18\",\"description\":\"Stocks like SJVN, NBCC, ITDC tested their lower circuits on Monday.\",\"url\":\"https://www.cnbctv18.com/market/stocks/sell-off-in-psu-space-erodes-4-lakh-crore-in-investor-wealth-in-two-sessions-19031651.htm\",\"urlToImage\":\"https://images.cnbctv18.com/wp-content/uploads/2024/02/market-at-close-1014x573.jpeg\",\"publishedAt\":\"2024-02-12T09:37:54Z\",\"content\":\"Let's Connect with CNBCTV 18\\r\\n©TV18 Broadcast Limited. All rights reserved.\"},{\"source\":{\"id\":null,\"name\":\"Dsij.in\"},\"author\":\"Kiran Shroff\",\"title\":\"Multibagger penny stock under Rs 70: This micro-cap company reports stellar quarterly results & nine-month results; PAT zooms 179.5 per cent - Dalal Street Investment Journal\",\"description\":\"From Rs 14.90 per share to Rs 63 per share, the stock gave multibagger returns of over 300 per cent in just 11 months.\",\"url\":\"https://www.dsij.in/dsijarticledetail/multibagger-penny-stock-under-rs-70-this-micro-cap-company-reports-stellar-quarterly-results-nine-month-results-pat-zooms-1795-per-cent-36431\",\"urlToImage\":\"https://www.dsij.in/Portals/0/EasyDNNnews/36431/Image_11118.jpg\",\"publishedAt\":\"2024-02-12T09:33:35Z\",\"content\":\"From Rs 14.90 per share to Rs 63 per share, the stock gave multibagger returns of over 300 per cent in just 11 months. \\r\\nOne Point One Solutions Ltd, leader in next-generation BPM services, has decla… [+3765 chars]\"},{\"source\":{\"id\":null,\"name\":\"Moneycontrol\"},\"author\":\"Jinit Parmar\",\"title\":\"Reliance Industries tops the list of India's most valuable companies in Burgundy Private and Hurun India... - Moneycontrol\",\"description\":\"The latest Burgundy Private and Hurun India report shows the top deck continues to be occupied with India's biggest companies, while the market capitalization of Top 500 companies now stands taller than the combined GDP of Saudi Arabia, Switzerland and Singap…\",\"url\":\"https://www.moneycontrol.com/news/business/burgundy-private-hurun-india-reliance-most-valuable-companies-12248311.html\",\"urlToImage\":\"https://images.moneycontrol.com/static-mcnews/2023/01/Wealth-management-770x433.png\",\"publishedAt\":\"2024-02-12T09:24:17Z\",\"content\":\"The latest report on India's most valuable companies, released by Axis Bank's private banking unit Burgundy Private and Hurun India reveals that Reliance Industries (RIL) has for the third year has t… [+2477 chars]\"},{\"source\":{\"id\":null,\"name\":\"DailyFX\"},\"author\":\"Nick Cawley\",\"title\":\"Gold (XAU/USD) Listless Ahead of US CPI, Bitcoin (BTC/USD) Probes Multi-Year High - DailyFX\",\"description\":\"Gold needs a driver to break its current state of lethargy, while Bitcoin continues to move higher as the fourth halving event heaves into view\",\"url\":\"https://www.dailyfx.com/news/gold-xau-usd-listless-ahead-of-us-cpi-bitcoin-btc-usd-probes-multi-year-high-20240212.html\",\"urlToImage\":\"https://a.c-dn.net/b/11WSOD/shutterstock_724659571.jpg\",\"publishedAt\":\"2024-02-12T09:22:06Z\",\"content\":\"Gold (XAU/USD), Bitcoin (BTC/USD) Analysis and Charts\\r\\nQ1 2024 Gold Forecast:\\r\\nRecommended by Nick Cawley\\r\\nGet Your Free Gold Forecast\\r\\n<ul><li>Gold in need of a driver will US CPI help?</li><li>Bitc… [+3758 chars]\"},{\"source\":{\"id\":null,\"name\":\"Moneycontrol\"},\"author\":\"Moneycontrol News\",\"title\":\"Bandhan Bank slumps over 7% as weak asset quality in Q3 upsets Street; release of govt claims eyed - Moneycontrol\",\"description\":\"Release of claims under government guarantees is key for driving Bandhan Bank's net non performing loans (NPLs) to under 1 percent, say analysts at JPMorgan\",\"url\":\"https://www.moneycontrol.com/news/business/markets/bandhan-banks-weak-asset-quality-in-q3-upsets-street-release-of-govt-claims-is-key-say-analysts-12247621.html\",\"urlToImage\":\"https://images.moneycontrol.com/static-mcnews/2023/07/Bandhan-Bank-770x433.jpg\",\"publishedAt\":\"2024-02-12T09:05:07Z\",\"content\":\"Bandhan Bank's third quarter (Q3FY24) financials disappointed Street after the lender's asset quality continued to remain elevated. Though brokerages maintained 'buy' calls on the lender, they reduce… [+2641 chars]\"},{\"source\":{\"id\":null,\"name\":\"Moneycontrol\"},\"author\":\"Moneycontrol News\",\"title\":\"Bharat Forge net profit surges over 220% YoY in Q3, stock down nearly 14% - Moneycontrol\",\"description\":\"EBITDA surged 30.9% to Rs 645 Crores, with EBITDA margins expanding to 28.5%, a 330 bps increase fueled by a favorable product mix and cost optimization focus\",\"url\":\"https://www.moneycontrol.com/news/business/earnings/bharat-forge-net-profit-surges-220-yoy-in-q3-12249181.html\",\"urlToImage\":\"https://images.moneycontrol.com/static-mcnews/2024/02/stocks_sensex_nifty_stockmarket5-1-770x433.jpg\",\"publishedAt\":\"2024-02-12T08:55:22Z\",\"content\":\"Pune based leading forging firm Bharat Forge Ltd reported over 220 percent surge in year on year consolidated net profit for the December quarter 2023 due to higher revenues.\\r\\nConsolidated net profit… [+3448 chars]\"},{\"source\":{\"id\":null,\"name\":\"Zee Business\"},\"author\":\"ZeeBiz WebTeam\",\"title\":\"HAL announces interim dividend of Rs 22; know record date; shares slip - Zee Business\",\"description\":\"As informed earlier, Record date for the payment of first interim dividend will be Tuesday, the 20th February, 2024, the company said in a statement to bourses on Monday.\",\"url\":\"https://www.zeebiz.com/companies/news-hindustan-aeronautics-ltd-hal-announces-interim-dividend-of-rs-22-shares-slip-know-record-date-bse-nse-hal-share-price-q3-december-quarter-results-276096\",\"urlToImage\":\"https://cdn.zeebiz.com/sites/default/files/2024/02/12/280243-hal-reuters.jpg\",\"publishedAt\":\"2024-02-12T08:50:13Z\",\"content\":\"HAL Interim Dividend: Hindustan Aeronautics Ltd (HAL) reported its December quarter results on Monday (February 12, 2024), also announcing the first interim dividend of 440 per cent, or Rs 22.\\r\\nThe l… [+546 chars]\"},{\"source\":{\"id\":null,\"name\":\"Livemint\"},\"author\":\"Asit Manohar\",\"title\":\"Stock market today: Gensol Engineering share price jumps 8% after winning PLI bid | Mint - Mint\",\"description\":\"Gensol Engineering has won a bid for manufacturing capacity for an advanced Electrolyser Plant under the Sustainable Hydrogen Innovation & Green Hydrogen Technologies program\",\"url\":\"https://www.livemint.com/market/stock-market-news/stock-market-today-gensol-engineering-share-price-jumps-8-after-winning-pli-bid-11707726410244.html\",\"urlToImage\":\"https://www.livemint.com/lm-img/img/2024/02/12/1600x900/Stock_market_today_Gensol_Engineering_share_price_1707727303453_1707727303606.jpg\",\"publishedAt\":\"2024-02-12T08:48:02Z\",\"content\":\"Stock market today: Despite heavy selling in mid-cap and small-cap stocks, Gensol Engineering shares witnessed strong buying interest on Monday. Gensol Engineering share price today opened upside at … [+3216 chars]\"},{\"source\":{\"id\":null,\"name\":\"Moneycontrol\"},\"author\":\"Moneycontrol News\",\"title\":\"Axis Bank open to working with Paytm if RBI permits, says MD & CEO Amitabh Chaudhry - Moneycontrol\",\"description\":\"RBI on February 1 barred Paytm Payments Bank Ltd from accepting fresh deposits and making credit transactions.\",\"url\":\"https://www.moneycontrol.com/news/business/axis-bank-open-to-working-with-paytm-if-rbi-permits-says-md-ceo-amitabh-chaudhry-12248881.html\",\"urlToImage\":\"https://images.moneycontrol.com/static-mcnews/2023/12/Axis-Bank.jpg\",\"publishedAt\":\"2024-02-12T08:31:08Z\",\"content\":\"Private sector lender Axis Bank is open to working with Paytm if the Reserve Bank of India (RBI) permits it, said Managing Director and Chief Executive Officer Amitabh Chaudhry on February 12.\\r\\n\\\"Subj… [+632 chars]\"},{\"source\":{\"id\":null,\"name\":\"Moneycontrol\"},\"author\":\"Harshita Tyagi\",\"title\":\"Zomato surges 6% to new 52-week high; brokerages upbeat on Q3 result - Moneycontrol\",\"description\":\"Zomato has rallied more than 200 percent in the past year, outperforming the Nifty, which has risen 21 percent during the period\",\"url\":\"https://www.moneycontrol.com/news/business/markets/zomato-surges-6-to-new-52-week-high-brokerages-upbeat-on-q3-result-12248651.html\",\"urlToImage\":\"https://images.moneycontrol.com/static-mcnews/2023/11/ZOMATO-770x433.jpg\",\"publishedAt\":\"2024-02-12T08:30:26Z\",\"content\":\"Shares of Zomato soared 6 percent in the morning trade on February 12 to hit a new 52-week high of Rs 158.80 on the National Stock Exchange (NSE). The surge pushed the scrip closer to its all-time hi… [+2654 chars]\"},{\"source\":{\"id\":null,\"name\":\"Entrackr\"},\"author\":\"Entrackr\",\"title\":\"AstroTalk raises \$20 Mn from Left Lane Capital - Entrackr\",\"description\":null,\"url\":\"https://entrackr.com/2024/02/astrotalk-raises-20-mn-from-left-lane-capital/\",\"urlToImage\":null,\"publishedAt\":\"2024-02-12T07:25:21Z\",\"content\":null},{\"source\":{\"id\":null,\"name\":\"Livemint\"},\"author\":\"Nishant Kumar\",\"title\":\"Stocks to buy this week: Asian Paints, Titan, BoB, Dr Reddy's Labs among 12 technical picks; do you own any? | Mint - Mint\",\"description\":\"Experts recommend buying technically and fundamentally sound stocks at the current juncture. Based on the recommendations of several experts, below are 12 stocks that one can consider buying for the next three to four weeks.\",\"url\":\"https://www.livemint.com/market/stock-market-news/stocks-to-buy-this-week-asian-paints-titan-bob-dr-reddys-labs-among-12-technical-picks-do-you-own-any-11707721120915.html\",\"urlToImage\":\"https://www.livemint.com/lm-img/img/2024/02/12/1600x900/gc6c9bb7c28a0229c657891ab03209719066d4ebd8ad60ac1f_1707721974841_1707721975119.jpg\",\"publishedAt\":\"2024-02-12T07:16:58Z\",\"content\":\"Nifty 50 declined about a per cent in intraday trade on Monday, February 12, on losses led by shares of select heavyweights, including Reliance Industries, ICICI Bank, HDFC Bank, Hero MotoCorp and Co… [+9317 chars]\"},{\"source\":{\"id\":\"the-times-of-india\",\"name\":\"The Times of India\"},\"author\":\"ETMarkets.com\",\"title\":\"Top Nifty50 stocks analysts suggest buying this week - The Economic Times\",\"description\":\"Stock Reports Plus, powered by Refinitiv, is a comprehensive research report that evaluates five key components of 4,000+ listed stocks - earnings, fundamentals, relative valuation, risk and price momentum to generate standardized scores. Simple average of th…\",\"url\":\"https://economictimes.indiatimes.com/markets/stocks/news/top-nifty50-stocks-analysts-suggest-buying-this-week/articleshow/107620366.cms\",\"urlToImage\":\"https://img.etimg.com/thumb/msid-107620399,width-1070,height-580/photo.jpg\",\"publishedAt\":\"2024-02-12T07:04:55Z\",\"content\":\"SynopsisStock Reports Plus, powered by Refinitiv, is a comprehensive research report that evaluates five key components of 4,000+ listed stocks - earnings, fundamentals, relative valuation, risk and … [+158 chars]\"},{\"source\":{\"id\":\"the-times-of-india\",\"name\":\"The Times of India\"},\"author\":\"TOI Business Desk\",\"title\":\"Sovereign Gold Bonds 2023-24 Series IV opens today: Check SGB tranche issue price, interest rate and othe - Times of India\",\"description\":\"India Business News: Sovereign Gold Bonds new issue: The fourth tranche of the Sovereign Gold Bonds (SGB) is now open for subscription with a price of Rs 6,263 per gram. O\",\"url\":\"https://timesofindia.indiatimes.com/business/india-business/sovereign-gold-bonds-2023-24-series-iv-opens-today-check-sgb-tranche-issue-price-interest-rate-and-other-details/articleshow/107617219.cms\",\"urlToImage\":\"https://static.toiimg.com/thumb/msid-107620208,width-1070,height-580,imgsize-56918,resizemode-75,overlay-toi_sw,pt-32,y_pad-40/photo.jpg\",\"publishedAt\":\"2024-02-12T07:00:00Z\",\"content\":\"FD Calculator\\r\\nWhen investing in a fixed deposit, the amount you deposit earns interest as per the prevailing...\\r\\nCalculate Now\"},{\"source\":{\"id\":null,\"name\":\"Moneycontrol\"},\"author\":\"Moneycontrol News\",\"title\":\"Mid-day Mood | Bank Nifty in a free fall, slips 850 pts to below 44,800; Nifty, Sensex fall 0.8% - Moneycontrol\",\"description\":\"Banking stocks -  private as well as PSUs came under selling pressure while information technology names bucked the weak market trend and inched higher.\",\"url\":\"https://www.moneycontrol.com/news/business/markets/mid-day-mood-nifty-sensex-fall-in-trade-as-banks-come-under-selling-pressure-12246691.html\",\"urlToImage\":\"https://images.moneycontrol.com/static-mcnews/2024/02/Sensex_nifty_market_down_Sensex-2-770x433.jpg\",\"publishedAt\":\"2024-02-12T06:48:53Z\",\"content\":\"The benchmark Nifty 50 and Sensex traded lower in afternoon trade on February 12 amid lack of positive triggers and a slump in frontline banking stocks. Selling in a few heavyweight counters like Rel… [+3932 chars]\"},{\"source\":{\"id\":null,\"name\":\"Tradebrains.in\"},\"author\":\"Trade Brains\",\"title\":\"Recently listed stock jumps 5% after reporting 263% increase in net profits - Trade Brains\",\"description\":\"Recently listed stock engaged in the business of manufacturing, marketing, and supplying beauty and personal care products jumped 5 percent in the day’s trade following the release of its Q3FY24 results with a 263 percent jump in net profit.\",\"url\":\"https://tradebrains.in/features/recently-listed-stock-jumps-5-after-reporting-263-increase-in-net-profits/\",\"urlToImage\":\"https://tradebrains.in/features/wp-content/uploads/2022/02/Markets-5-Cover-Image.jpg\",\"publishedAt\":\"2024-02-12T06:46:00Z\",\"content\":\"Recently listed stock engaged in the business of manufacturing, marketing, and supplying beauty and personal care products jumped 5 percent in the days trade following the release of its Q3FY24 resul… [+1931 chars]\"},{\"source\":{\"id\":\"the-times-of-india\",\"name\":\"The Times of India\"},\"author\":\"Shivendra Kumar\",\"title\":\"Yes Bank shares fall 11% on profit booking post 40% rally. Should you buy, sell or hold? - The Economic Times\",\"description\":\"Yes Bank stock has been on a strong uptrend after the Reserve Bank of India's (RBI) nod to HDFC Bank to buy a stake in the private lender and the State Bank of India's denial of a stake sale in the company.\",\"url\":\"https://economictimes.indiatimes.com/markets/stocks/news/yes-bank-shares-fall-11-on-profit-booking-post-40-rally-should-you-buy-sell-or-hold/articleshow/107619405.cms\",\"urlToImage\":\"https://img.etimg.com/thumb/msid-107619376,width-1200,height-630,imgsize-25906,overlay-etmarkets/photo.jpg\",\"publishedAt\":\"2024-02-12T06:43:44Z\",\"content\":\"Yes Bank shares fell nearly 11% in the intraday trade to the day's low of Rs 28.05 on the NSE on Monday amid profit booking, having witnessed a near 40% rally in the past four trading sessions. The s… [+2394 chars]\"},{\"source\":{\"id\":null,\"name\":\"Zee Business\"},\"author\":null,\"title\":\"Tata Power Shares Dips After Q3FY24 Earnings Report | Stock Market News - Zee Business\",\"description\":\"Tata Power's stock fell nearly 3% on the NSE on February 12 following the company's announcement of muted post-tax profits for Q3FY24. Despite reporting a 2% YoY increase in net profit and a 6.2% growth in revenue, challenges such as a net long coal position …\",\"url\":\"https://www.zeebiz.com/market-news/video-gallery-tata-power-shares-dips-after-q3fy24-earnings-report-stock-market-news-276054\",\"urlToImage\":\"https://cdn.zeebiz.com/sites/default/files/2024/02/12/280204\",\"publishedAt\":\"2024-02-12T06:24:01Z\",\"content\":\"By accepting cookies, you agree to the storing of cookies on your device to enhance site navigation, analyze site usage, and assist in our marketing efforts.\"},{\"source\":{\"id\":null,\"name\":\"Livemint\"},\"author\":\"A Ksheerasagar\",\"title\":\"NBCC stock slides for 6th day in a row, locked in 10% lower circuit; here's why | Mint - Mint\",\"description\":\"The decline can be attributed to profit booking, as the stock had been on an upward trajectory between January 19 and February 02, delivering a stellar return of 93.5% in just two-week period, surging in value from  ₹87.20 apiece to  ₹168.65.\",\"url\":\"https://www.livemint.com/market/stock-market-news/nbcc-stock-slides-for-6th-day-in-a-row-locked-in-10-lower-circuit-heres-why-11707716026710.html\",\"urlToImage\":\"https://www.livemint.com/lm-img/img/2024/02/12/1600x900/g4115ba09f15e8f5f1cd2b4404dbb8174f30177d204a279ff8_1707716043099_1707716043321.png\",\"publishedAt\":\"2024-02-12T06:16:21Z\",\"content\":\"Continuing their bearish trend for the sixth consecutive trading session, shares of NBCC (India), the state-owned construction firm, were locked in the 10% lower circuit at 133.15 apiece in today's s… [+2830 chars]\"},{\"source\":{\"id\":null,\"name\":\"Zee Business\"},\"author\":\"ZeeBiz WebTeam\",\"title\":\"SAIL Q3 Results Preview: Profit likely to jump 58%; revenue may rise 10%; stock trades over 4% lower - Zee Business\",\"description\":\"The analysts estimate the steelmaker to report a profit of Rs 735 crore in the quarter under review, which will be 58 per cent higher than the companys profit of Rs 464 crore in the same quarter last fiscal. The research team suggests investors keep an eye on…\",\"url\":\"https://www.zeebiz.com/companies/news-sail-q3-results-preview-profit-like-to-jump-58-revenue-may-rise-10-stock-trades-over-4-lower-bse-nse-december-quarter-results-q3-fy2324-276052\",\"urlToImage\":\"https://cdn.zeebiz.com/sites/default/files/2024/02/12/280201-sail-1-take.jpg\",\"publishedAt\":\"2024-02-12T05:59:26Z\",\"content\":null}]}"
+        delay(3000)
+        return flow {
+            val mData = Gson().fromJson(data, NewsArticle::class.java)
+            emit(NetworkState.Success(mData))
+        }
     }
 
 
     override suspend fun getNewsData(
         country: String,
         pageSize: Int,
-        pageNumber: Int
-    ): NetworkState {
-        val response = service.getNewsData(country, pageSize, pageNumber)
-        if (response.code() == 200) {
-            return NetworkState.Success(response.body() as NewsArticle)
-        } else {
-            return NetworkState.Failure(message = response.errorBody().toString())
-        }
+        pageNumber: Int,
+        category: String
+    ): Flow<NetworkState<NewsArticle>> {
+        return DataWrapper.invoke(service.getNewsData(country, pageSize, pageNumber, category))
     }
 }

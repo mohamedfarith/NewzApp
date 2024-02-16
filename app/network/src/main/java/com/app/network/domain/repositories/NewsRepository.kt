@@ -8,5 +8,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface NewsRepository {
 
-    suspend fun fetchNews(country: String, pageSize: Int, pageNumber: Int): NetworkState
+    suspend fun fetchNews(country: String, pageSize: Int, pageNumber: Int,category: String): Flow<NetworkState<NewsArticle>>
 }

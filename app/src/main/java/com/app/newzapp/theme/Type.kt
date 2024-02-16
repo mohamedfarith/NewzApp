@@ -1,4 +1,4 @@
-package com.app.newzapp.ui.theme
+package com.app.newzapp.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle

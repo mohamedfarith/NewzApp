@@ -1,30 +1,34 @@
 package com.app.newzapp.presentation.di.newsFeed
 
+import com.app.network.data.datasourcesImpl.NewsNetworkDataSourceImpl
 import com.app.network.data.repositoryImpl.NewsRepositoryImpl
 import com.app.network.data.services.NewsService
+import com.app.network.data.usecasimpl.NewsFeedUseCaseImpl
+import com.app.network.domain.datasources.NewsNetworkDataSource
+import com.app.network.domain.repositories.NewsRepository
 import com.app.network.domain.useCase.NewsFeedUseCase
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 
 @Module
-@InstallIn(SingletonComponent::class)
-object NewsFeedModule {
+@InstallIn(ViewModelComponent::class)
+abstract class NewsFeedModule {
     // give repository instance to news activity
-    @Provides
-    @Singleton
-    fun getNewsService() = NewsService.create()
 
-    @Provides
-    @Singleton
-    fun getNewsFeedRepo() = NewsRepositoryImpl(getNewsService())
+    @Binds
+    abstract fun getNewsNetworkDataSource(newsNetworkDataSourceImpl: NewsNetworkDataSourceImpl):NewsNetworkDataSource
 
-    @Provides
-    @Singleton
-    fun getNewsFeedUseCase() = NewsFeedUseCase(getNewsFeedRepo())
+    @Binds
+    abstract fun getNewsFeedRepo(newsRepositoryImpl: NewsRepositoryImpl): NewsRepository
+
+    @Binds
+    abstract fun getNewsFeedUseCase(nesFeedImpl: NewsFeedUseCaseImpl): NewsFeedUseCase
 
 
 }

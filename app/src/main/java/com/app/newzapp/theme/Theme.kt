@@ -1,10 +1,15 @@
-package com.app.newzapp.ui.theme
+package com.app.newzapp.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import com.app.newzapp.ui.theme.Purple200
+import com.app.newzapp.ui.theme.Purple500
+import com.app.newzapp.ui.theme.Purple700
+import com.app.newzapp.ui.theme.Shapes
+import com.app.newzapp.ui.theme.Teal200
 
 private val DarkColorPalette = darkColors(
     primary = Purple200,
